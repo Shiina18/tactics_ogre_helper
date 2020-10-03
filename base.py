@@ -142,19 +142,19 @@ class Unit(BaseObj):
         resistance = sum(item.damage_types[self.damage_type] for item in target.equipment if item.etype not in {'str', 'dex'})
         extra_dmg = self.extra_damage
         defense = target.defense
-        base_dmg = offense - toughness
+        base_dmg = max(0, offense - toughness)
         base_mul = min(max(1+dmg_bonus-resistance, 0), 2.5)
         scaled_base_dmg = base_dmg * base_mul
 
         print()
         print(f'{self.name} attacks {target.name}')
-        print(f'offense: \t{offense}')
-        print(f'toughness: \t{toughness}')
-        print(f'dmg bonus: \t{dmg_bonus}')
-        print(f'resistance: \t{resistance}')
-        print(f'base dmg: \t{base_dmg: .1f} (*{base_mul: .2f}={scaled_base_dmg: .1f})')
+        print(f'offense: \t{offense: .1f}')
+        print(f'toughness: \t{toughness: .1f}')
+        print(f'dmg bonus: \t{dmg_bonus: .2f}')
+        print(f'resistance: \t{resistance: .2f}')
+        print(f'base dmg: \t{base_dmg: .1f} (*{base_mul: .2f} ={scaled_base_dmg: .1f})')
         print(f'extra dmg: \t{extra_dmg: .1f}')
-        print(f'defense: \t{defense}')
+        print(f'defense: \t{defense: .1f}')
         print(f'final dmg: \t{int(max(1, scaled_base_dmg+extra_dmg-defense))}')
 
 axe = Equipment(name='Poleaxe',
@@ -195,9 +195,42 @@ archer = Unit([bow, light_leg, light_shield, dex_ring, light_armor],
               stats=[81, 66, 107],
               name='archer')
 
-archer.attack(ber, 24)
-ber.attack(archer, 28)
+sword = Equipment('str',
+                 name='Cultlass',
+                 extras=85,
+                 dtype={'s': 17})
 
+heavy_shield = Equipment('sh',
+                      name='Tower Shield',
+                      extras=15,
+                      dtype=[8, 11, 11])
+
+heavy_armor = Equipment('a',
+                      name='Heavy Lorica',
+                      extras=38,
+                      dtype=[17, 23, 23],
+                      stats=[0, 6, 0])
+
+heavy_helm = Equipment('a',
+                      name='Damasc Helm',
+                      extras=21,
+                      dtype=[9, 12, 12])
+
+def_ring = Equipment('j',
+                     extras=[0, 8])
+
+knight = Unit([sword, heavy_shield, heavy_armor, heavy_helm, def_ring],
+              extras=[17, 17],
+              stats=[97, 79, 90],
+              name='knight')
+
+units = [(archer, 24), (ber, 28), (knight, 16)]
+for unit, v in units:
+    for target, _ in units:
+        if unit != target:
+            unit.attack(target, v)
+        else:
+            unit.attack(target, v/4)
 
 '''
 sword = Equipment('str', name='sample_sword',
